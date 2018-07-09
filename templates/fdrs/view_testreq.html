@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title><!--{$site_name}--></title>
+<link href="/resource/css/mini-common.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+body,html{margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;}
+</style>
+<!--{include file='../local_js.html'}-->
+<script type="text/javascript">
+var APP='<!--{$controller}-->',grid = null;
+var ary_status = <!--{$ary_status}-->;
+$(document).ready(function(){ setTimeout(init,0); });
+function init()
+{
+	mini.parse();
+
+    //初始化批量操作下拉菜单
+    var batch_menus = [
+                    {id: 'act_0', text: "删除",status:2,act:'delete_testreq'},
+                    <!--{foreach from=$statuses item=item name=foo}-->
+                    {id: 'act_<!--{$item.id}-->', text: "<!--{$item.text}-->",status:"<!--{$item.id}-->",act:'update_status'},
+                    <!--{/foreach}-->
+                ];
+    var batchMenu = mini.get('batchMenu');
+    batchMenu.loadList(batch_menus);
+
+	grid = mini.get("datagrid1");
+	query();
+}
+
+function query()
+{
+	var frm = new mini.Form('frm1');
+	var o = frm.getData();
+	grid.load(o);
+	grid.clearSelect();
+}
+
+function get_ids()
+{
+    var rows = grid.getSelecteds();
+    var s = '';
+    for (var i = 0, l = rows.length; i < l; i++)
+    {
+        var row = rows[i];
+        s += row.id;
+        if (i != l - 1) s += ',';
+    }
+
+    return s;
+}
+
+//执行批量操作
+function onclick_batch_item(e)
+{
+    var node = e.item;
+    var rows = grid.getSelecteds();
+    if(rows.length <= 0){ 
+        mini.alert('请选择要执行 ('+ node.text +') 操作的条目');
+        return;
+    }
+    var data = { ids:get_ids(),status:node.status };
+
+    var note_text = '您确定要执行所选操作吗';
+    mini.confirm(note_text, "再次确认",
+            function (action) {
+                if (action == "ok") {
+                    showloading();
+                    $.ajax({
+                        url: '/?app=' + APP + '&act=' + node.act,
+                        data: data,type:'post',
+                        success: function (json) {
+                            successHandler(json,function(){
+                                mini.alert(json.message,'结果提示',function(action){ 
+                                    if(json.code == 1){ 
+                                        grid.reload();
+                                        grid.clearSelect();
+                                    }
+                                });
+                            });
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+                    }); 
+                }
+        }
+    );
+}
+
+function delete_testreq()
+{
+	var ids = get_ids();
+	if(ids == ''){ mini.alert('请选择要删除的内容');return; }
+	var note_text = '您确定要删除所选内容吗';
+	mini.confirm(note_text, "再次确认",
+			function (action) {
+				if (action == "ok") {
+					showloading();
+					$.ajax({
+						url: '/?app=' + APP + '&act=delete_testreq',
+						data: { ids: ids},type:'post',
+						success: function (json) {
+							successHandler(json,function(){
+								mini.alert(json.message,'结果提示',function(action){ 
+									if(json.code == 1){ grid.reload(); }
+								});
+							});
+						},
+						error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+					});	
+				}
+		}
+	);
+}
+
+//行的选择改变时执行
+function onselectionchanged(e)
+{
+    var btn_batch = mini.get('btn_batch');
+    var rows = grid.getSelecteds();
+    if(rows.length > 0){
+        btn_batch.enable();
+    }else{
+        btn_batch.disable();
+    }
+}
+
+//当表格重新加载的时候
+function onGridLoad(e)
+{
+	if(grid.getData().length <= 0)
+	{
+		grid.setEmptyText('没有查询到相关数据 ...');
+		grid.setShowEmptyText(true);
+	}
+}
+
+//查询结束后自定义列
+function resetcoloumn(e)
+{
+    var field = e.field,value = e.value,column = e.column;
+    var row = e.record;
+    switch(row.status){
+        case '1':e.rowStyle = 'background:#B3FFB3';break;
+        case '-1':e.rowStyle = 'background:#F7F7F7;color:#CCC';break;
+        case '0':e.rowStyle = 'background:#FFE3F7';break;
+    }
+}
+</script>
+</head>
+<body> 
+<div class="mini-toolbar top_bar no_padding">
+    <table style="width:100%;">
+        <tr>
+        <td style="width:100%;">
+        <div id="frm1">
+            <label>电话：</label><input id="phone_num" name="phone_num" class="mini-textbox" 
+            		onenter="query" style="width:100px;" /> 
+            <a class="mini-button" iconCls="icon-search" plain="true" onclick="query">查询</a>
+        </div>
+        </td>
+        <td style="white-space:nowrap;">
+            <!-- <a class="mini-button" iconCls="icon-remove" plain="true" onclick="delete_testreq">删除</a> -->
+            <a class="mini-menubutton " menu="#batchMenu" plain="true" id="btn_batch" 
+                enabled="false" iconCls="icon-goto">批量操作...</a>
+            <ul id="batchMenu" class="mini-menu" textField="text" idField="id" parentField="pid" 
+                onitemclick="onclick_batch_item"></ul>
+        </td>
+        </tr>
+    </table>
+</div>
+<div class="mini-fit">
+    <!--撑满页面-->
+    <div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;"
+        allowCellWrap="true" allowAlternating="true"
+            allowResize="false" url="/?app=<!--{$controller}-->&act=query_testreq"
+            onload="onGridLoad" multiSelect="true" borderStyle="border-top:0"
+            onselectionchanged="onselectionchanged" ondrawcell="resetcoloumn">
+        <div property="columns">
+            <div type="checkcolumn"></div>
+            <div field="status_txt" width="40" align="center" headerAlign="center">状态</div>    
+            <div field="realname" width="60" align="center" headerAlign="center">预约人</div>    
+            <div field="phone" width="70" align="center" headerAlign="center">电话</div>
+            <div field="save_time" width="90" dataType="date" dateFormat="yyyy-MM-dd HH:mm" align="center" headerAlign="center">发起时间</div>
+            <div field="save_ip" width="80" align="center" headerAlign="center">来源IP</div>
+            <div field="user_addr" headerAlign="center" align="center">所在地址</div>
+        </div>
+    </div> 
+</div>
+</body>
+</html>

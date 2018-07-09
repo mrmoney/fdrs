@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+<title><!--{$site_name}--></title>
+<link href="/resource/layui/css/layui.css" rel="stylesheet" media="all" />
+<link href="/resource/css/ussv.layui.css" rel="stylesheet" />
+<script type="text/javascript" src="/resource/layui/layui-2.3.min.js"></script>
+</head>
+<body>
+<div class="layui-container" id="ussv_content">
+	<div class="layui-row">
+		<div class="layui-col-md12">
+			<table border="0" style="margin:15px auto; text-align: center" align="center">
+			    <tr>
+			        <td><img alt="微信支付" src="/images/wxpay.png" style="height:30px;"/>
+					</td>
+			    </tr>
+			    <tr>
+			        <td><img alt="扫码支付" id="qrcode_img"
+						src="/order/qrcode/?code_url=<!--{$code_url}-->" 
+						style="width:260px;height:260px;"/>
+					</td>
+			    </tr>
+			    <tr>
+			        <td>请在十分钟内使用微信扫码二维码支付</td>
+			    </tr>
+			</table>
+		</div>	
+	</div>	
+</div>	
+<script type="text/javascript">
+var layer = null,$ = null;
+var interval1 = null,interval2 = null;
+layui.use(['jquery','layer'], function(){
+  $ = layui.jquery;layer = layui.layer;
+  layer.config({ extend: 'ussv/style.css', skin: 'layer-ext-ussv' });	
+	
+  	// 按照时间间隔查询付款结果
+	interval1 = self.setInterval('reload()',1000 * 60 * 10);
+	interval2 = self.setInterval('query_paystatus()',10000);
+	
+});
+
+function reload()
+{
+	var index = layer.msg('请稍后 ..', { icon: 16,shade: 0.01, time: 0 });
+	$.ajax({
+		url: '/order/pay', type: 'get',
+		success: function (json){
+			layer.close(index);
+			if(json.code == 1){
+				$('#qrcode_img').attr('src','/order/qrcode/?code_url=' + 
+										json.data);
+			}else{ layer.msg(json.message); }
+		},
+		error: function (jqXHR, textStatus, errorThrown) { 
+			console.log('网络错误,请稍后再试');
+		}
+	});
+}
+
+function query_paystatus()
+{
+	var index = layer.msg('请稍后 ..', { icon: 16,shade: 0.01, time: 0 });
+	$.ajax({
+		url: '/query/pay/status',
+		data:{ order_num:'<!--{$order_num}-->' },type: 'post',
+		success: function (json){
+			layer.close(index);
+			if(json.code == 1){
+				if(json.message == 'OK'){
+					if(interval1 != null){ window.clearInterval(interval1); }
+					if(interval2 != null){ window.clearInterval(interval2); }
+					layer.alert('付款成功', function(index){
+						layer.close(index);
+						var o = parent.layer.getFrameIndex(window.name);
+						parent.layer.close(o);
+					}); 
+				}
+			}else{ layer.msg(json.message); }
+		},
+		error: function (jqXHR, textStatus, errorThrown) { 
+			console.log('网络错误,请稍后再试');
+		}
+	});
+}
+</script>
+</body>
+</html>

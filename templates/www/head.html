@@ -1,0 +1,48 @@
+<header class="head_nav_met_27_1 navbar-fixed-top" m-id='39' m-type="head_nav">
+<div class="container top-box">
+		<div class="row">
+			<div class="top-header">
+				<div class="logo-box">
+				    <a href="/" class="met-logo" title="<!--{$site_name}-->">
+				        <div class="vertical-align-middle">
+					        <img src="/images/logo-500-62.png" alt="<!--{$site_name}-->"/>
+					    </div>
+				    </a>
+				</div>
+				<div class="pull-md-right hidden-sm-down">
+					<ul class="met-langlist pull-md-left m-b-0"></ul>
+				    <div class="met-search-body pull-md-left">
+				    <form method='get' class="page-search-form" role="search">
+				        <div class="input-search">
+				            <button class="search-btn" type="submit"><i class="fa fa-search"></i></button>
+				            <input type="text" class="form-control" name="searchword" 
+				                placeholder="搜索" data-fv-notempty = "true" />
+				        </div>
+				    </form>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<div class="container">
+    <div class="row">
+	    <nav class="navbar navbar-default box-shadow-none head_nav_met_27_1-navbar navlist" >
+		    <div class="collapse navbar-collapse navbar-collapse-toolbar pull-md-left p-0" id="met-nav-collapse">
+		        <ul class="nav navbar-nav navlist daohang  flex">
+		        	<!--{foreach from=$menus item=menu}-->
+		            <li class='nav-item'>
+		            	<!--{if $cat_id == $menu.index}-->
+		                <a href="<!--{$menu.href}-->" class="nav-link active"><!--{$menu.text}--></a>
+		            	<!--{else}-->
+		                <a href="<!--{$menu.href}-->" class="nav-link"><!--{$menu.text}--></a>
+		            	<!--{/if}-->
+		            </li>
+		        	<!--{/foreach}-->
+		        </ul>
+		    </div>
+	    </nav>
+    </div>
+    </div>
+</header>

@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title><!--{$site_name}--></title>
+<link href="/resource/css/mini-common.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+body,html{margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;}
+h4{ padding: 0;margin:0;color: #333; }
+ .table_default .mini-textbox, .table_default .mini-combobox{ width: 120px; } 
+ .table_default .mini-spinner,.table_default .mini-datepicker{ width: 120px; }
+ .table_default .content{ min-width: 300px; }
+</style>
+<!--{include file='../local_js.html'}-->
+<script type="text/javascript">
+var APP='<!--{$controller}-->';
+var ary_pay_types = <!--{$pay_types}-->;
+var ary_pay_status = <!--{$pay_status}-->;
+var ary_order_status = <!--{$order_status}-->;
+var ary_express_types = <!--{$express_types}-->;
+var data = <!--{$data}-->;
+$(document).ready(function(){ setTimeout(init,0); });
+function init()
+{
+	mini.parse();
+	var frm1 = new mini.Form('frm1');
+	frm1.setData(data.main);
+	onchange_form();
+}
+
+function onchange_form()
+{
+	var frm1 = new mini.Form('frm1');
+	var o = frm1.getData(true);
+	var pay_status = o.pay_status;
+	if(pay_status == 1){
+		mini.getByName('pay_type').set({ required:true });
+		mini.getByName('paid_amount').set({ required:true });
+		mini.getByName('pay_time').set({ required:true });
+	}else{
+		mini.getByName('pay_type').set({ required:false });
+		mini.getByName('paid_amount').set({ required:false });
+		mini.getByName('pay_time').set({ required:false });
+	}
+}
+
+function save()
+{
+	var frm1 = new mini.Form('frm1');
+	frm1.validate();
+	if(!frm1.isValid()){ return; }
+	var o = frm1.getData(true);
+	o.id = '<!--{$id}-->';
+	showloading('正在保存...');
+	$.ajax({
+		url: '/?app=' + APP + '&act=save_update',
+		data: o, type: 'post',
+		success: function (json)
+		{
+			successHandler(json,function(){
+				if(json.code == 1){
+					mini.alert(json.message,'',function(action){
+						if(action == 'ok'){ closeWindow('ok'); }
+					});
+				}else{ mini.alert(json.message); }
+			});
+		},
+		error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+	});
+}
+</script>
+</head>
+<body> 
+<div class="mini-fit" id="frm1">	
+<div id="tabs1" class="mini-tabs" bodyStyle="border:0" style="width:100%;height:100%;">
+    <div title="基本信息" >
+        <table border="0" cellspacing="0" cellpadding="2" class="table_default">
+		    <tr>
+		        <td>订单状态：</td>
+		        <td class="content"><div name="order_status" class="mini-combobox" 
+		        	required="true" errorMode="border" emptyText="请选择"
+		        	showNullItem="true" data="ary_order_status"></div></td>
+		    </tr>
+		    <tr>
+		        <td>客户手机号：</td>
+		        <td><input name="phone_num" class="mini-textbox"
+		        	required="true" errorMode="border" emptyText="11位数字"
+		        	vtype="int;rangeLength:11,11;" /></td>
+		    </tr>
+		    <tr>    	
+		        <td>客户姓名：</td>
+		        <td><input name="realname" required="true" errorMode="border"
+		        	 class="mini-textbox" /></td>
+		    </tr>
+		    <tr>    	
+		        <td>订单备注：</td>
+		        <td><textarea name="note" emptyText="不要超过150个字" 
+		        	class="mini-textarea" style="width: 300px;height: 80px;">
+		       		</textarea>
+		       	</td>
+		    </tr>
+		</table>
+    </div>
+    <div title="支付">
+        <table id="frm_pay" border="0" cellspacing="0" 
+        		cellpadding="2" class="table_default">
+		    <tr>
+		        <td>付款状态：</td>
+		        <td class="content"><div name="pay_status" class="mini-combobox" 
+		        	required="true" errorMode="border" emptyText="请选择"
+		        	onvaluechanged="onchange_form()"
+		        	showNullItem="true" data="ary_pay_status"></div></td>
+		    </tr>
+		    <tr>    
+		        <td>付款方式：</td>
+		        <td><div name="pay_type" class="mini-combobox" 
+		        	errorMode="border" emptyText="请选择"
+		        	showNullItem="true" data="ary_pay_types"></div></td>
+		    </tr>
+		    <tr>
+		    	<td>实付总额：</td>
+		        <td><div name="paid_amount" class="mini-spinner" 
+		        	minValue="0" maxValue="999999" format="c2"
+		        	errorMode="border"></div></td>
+		    </tr>
+		    <tr>    	
+		        <td>付款时间：</td>
+		        <td><div name="pay_time" class="mini-datepicker" style="width: 60%"
+		        	errorMode="border" nullValue="null" 
+		        	format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss" 
+		        	showTime="true" showOkButton="true" showClearButton="false"></div>
+		        </td>
+		    </tr>
+		</table>
+    </div>
+    <div title="物流">
+        <table id="frm_wuliu" border="0" cellspacing="0" 
+        		cellpadding="2" class="table_default">
+		    <tr>
+		        <td>收货人手机号：</td>
+		        <td class="content"><input name="r_phone" class="mini-textbox"
+		        	required="true" errorMode="border" emptyText="11位数字"
+		        	vtype="int;rangeLength:11,11;" /></td>
+		    </tr>
+		    <tr>    	
+		        <td>收货人姓名：</td>
+		        <td><input name="r_name" class="mini-textbox" 
+		        	required="true" errorMode="border" /></td>
+		    </tr>
+		    <tr>
+		        <td>邮政编码：</td>
+		        <td><input name="r_post" class="mini-textbox"
+		        	errorMode="border" vtype="int;rangeLength:6,6;" /></td>
+		    </tr>
+		    <tr>
+		        <td>收货地址：</td>
+		        <td><input name="r_addr" class="mini-textbox"
+		        	required="true" errorMode="border" style="width: 100%"/></td>
+		    </tr>
+		    <tr>
+		        <td>物流公司：</td>
+		        <td class="content"><div name="ts_type" class="mini-combobox" 
+		        	errorMode="border" emptyText="请选择"
+		        	showNullItem="true" data="ary_express_types"></div></td>
+		    </tr>
+		    <tr>
+		        <td>物流单号：</td>
+		        <td><input name="ts_num" class="mini-textbox"
+		        	errorMode="border"/></td>
+		    </tr>
+		    <tr>
+		    	<td>配送费用：</td>
+		        <td><div name="ts_fee" class="mini-spinner" 
+		        	minValue="0" maxValue="999" format="c2"
+		        	errorMode="border"></div></td>
+		    </tr>
+		    <tr>
+		        <td>发货人：</td>
+		        <td><input name="ts_sender" class="mini-textbox"
+		        	errorMode="border"/></td>
+		    </tr>
+		    <tr>    	
+		        <td>发货时间：</td>
+		        <td><div name="ts_date" class="mini-datepicker"
+		        	nullValue="null" format="yyyy-MM-dd"></div>
+		        </td>
+		    </tr>
+		</table>
+    </div>
+</div>
+
+</div> 
+<div class="mini-toolbar bottom_bar">
+    <a class="mini-button" onclick="save">保存</a>
+    <span style="display:inline-block;width:25px;"></span>
+    <a class="mini-button" onclick="closeWindow('close')">关闭</a>
+</div>
+</body>
+</html>

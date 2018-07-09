@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title><!--{$site_name}--></title>
+<link href="/resource/css/mini-common.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+body,html{margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;}
+</style>
+<!--{include file='../local_js.html'}-->
+<script type="text/javascript">
+var APP='<!--{$controller}-->',grid = null;
+$(document).ready(function(){ setTimeout(init,0); });
+function init()
+{
+	mini.parse();
+	grid = mini.get("datagrid1");
+	query_refunds();
+}
+
+function query_refunds()
+{
+	var frm = new mini.Form('frm1');
+	var o = frm.getData();
+	o.id = '<!--{$id}-->';
+	grid.load(o);
+}
+
+//当表格重新加载的时候
+function onGridLoad(e)
+{
+	if(grid.getData().length <= 0)
+	{
+		grid.setEmptyText('没有查询到相关数据 ...');
+		grid.setShowEmptyText(true);
+	}
+}
+
+var obj_refund_status = {'0':'正在退款','1':'退款成功','-1':'退款失败'};
+//查询结束后自定义列
+function resetcoloumn(e)
+{
+	var field = e.field,value = e.value,column = e.column;
+	var row = e.record,status = row.refund_status;
+	
+	if (field == "refund_status_txt") {
+		e.cellHtml = obj_refund_status[status];
+	}
+	
+	//if(status == '1'){ e.rowStyle = 'background:#EEE;color:#666'; }
+	//if(status == '-1'){ e.rowStyle = 'background:#FFE3F7;'; }
+}
+
+function input(id,realname)
+{
+	var atEl = document.getElementById('btn_1'); 
+	var c = mini.get('win1');
+	c.show();
+}
+
+function onActionRenderer(e)
+{
+	var record = e.record,column = e.column,s = '';
+    switch(column.name){
+        case 'query':
+            s = '<span class="icon-search actions" title="查询" onclick="query_refundstatus(' + 
+				record.id + ',\''+record.refund_num+'\')"></span>';
+            break;
+    }
+    return s;
+}
+
+function query_refundstatus(id,refund_num)
+{
+	showloading('正在查询...');
+	$.ajax({
+		url: '/?app=' + APP + '&act=query_refundstatus&id=' + id,
+		type:'get',
+		success: function (json) {
+			successHandler(json,function(){
+				mini.alert(json.message,'',function(action){ 
+					if(json.code == 1){
+						grid.reload();
+					}
+				});
+			});
+		},
+		error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+	});
+}
+
+function save_refund()
+{
+	var frm2 = new mini.Form('frm2');
+	frm2.validate();
+	if(!frm2.isValid()){ return; }
+	var o = frm2.getData(true);
+	o.id = '<!--{$id}-->';
+	showloading('正在保存...');
+	$.ajax({
+		url: '/?app=' + APP + '&act=save_refund',
+		data: o,type:'post',
+		success: function (json) {
+			successHandler(json,function(){
+				mini.alert(json.message,'',function(action){ 
+					if(json.code == 1){
+						mini.get('win1').hide();
+						grid.reload();
+					}
+				});
+			});
+		},
+		error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+	});
+}
+
+function onDrawSummaryCell(e)
+{
+	var result = e.result;
+    var grid = e.sender;
+    if (e.field == "refund_fee") {
+    	var v = mini.formatNumber(e.value,'c');
+        e.cellHtml = "<div style='text-align:right'>总: " + v + "</div>";
+    }
+}
+</script>
+</head>
+<body> 
+<div class="mini-toolbar top_bar no_padding">
+    <table style="width:100%;">
+        <tr>
+	        <td style="width:100%;">
+		        <div id="frm1">
+		            <a class="mini-button" iconCls="icon-add" plain="true" 
+		            	id="btn_1" onclick="input">新增退款</a>
+		        </div>
+	        </td>
+	        <td style="white-space:nowrap;"></td>
+        </tr>
+    </table>
+</div>
+<div class="mini-fit">
+    <!--撑满页面-->
+    <div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;"
+        allowCellWrap="true" allowAlternating="true" showSummaryRow="true"
+        	borderStyle="border-top:0"
+        	url="/?app=<!--{$controller}-->&act=query_refunds"
+            allowResize="false" ondrawcell="resetcoloumn" ondrawsummarycell="onDrawSummaryCell">
+        <div property="columns">
+            <div field="refund_num" width="70" align="center" headerAlign="center">退款单号</div>    
+            <div field="refund_fee" width="60" headerAlign="center" align="right"
+                 summaryType="sum" dataType="currency" currencyUnit="￥">金额</div>
+            <div field="refund_status_txt" width="50" align="center" headerAlign="center">状态</div>
+            <div field="refund_time" width="85" dataType="date" dateFormat="yyyy-MM-dd HH:mm" 
+            	align="center" headerAlign="center">到账时间</div>
+            <div field="submit_time" width="85" dataType="date" dateFormat="yyyy-MM-dd HH:mm" 
+            	align="center" headerAlign="center">发起时间</div>
+            <div field="submit_user" width="50" align="center" headerAlign="center">发起人</div>
+            <div field="refund_note" width="100" align="center" headerAlign="center">备注</div>
+            <div name="query" width="40" headerAlign="center" 
+            	align="center" renderer="onActionRenderer" cellStyle="padding:0;">查询</div>
+        </div>
+    </div> 
+</div>
+<div id="win1" class="mini-window" title="发起退款请求" 
+    style="width:450px;height:220px; display:none;" 
+    showMaxButton="false" showCollapseButton="false" showShadow="true"
+    showToolbar="false" showFooter="true" showModal="true" 
+    allowResize="false" allowDrag="true">
+    <div property="footer" style="text-align:center;padding:5px;">
+        <a class="mini-button" onclick="save_refund">保存</a>
+        <span style="display:inline-block;width:25px;"></span>
+        <a class="mini-button" onclick="mini.get('win1').hide()">取消</a>
+    </div>
+    <div id="frm2">
+        <table border="0" cellspacing="0" cellpadding="2" class="table_default">
+		    <tr>
+		        <td>退款金额：</td>
+		        <td><div name="refund_fee" class="mini-spinner" 
+		        	minValue="0" maxValue="999999" format="c2"
+		        	required="true" errorMode="border"></div></td>
+		    </tr>
+		    <tr>
+		        <td>退款备注：</td>
+		        <td><textarea name="refund_note" emptyText="不要超过150个字" 
+		        	class="mini-textarea" style="width: 300px;height: 80px;"></textarea>
+		        </td>
+		    </tr>
+		</table>
+    </div>
+</div>
+</body>
+</html>

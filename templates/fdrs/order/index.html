@@ -1,0 +1,390 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title><!--{$site_name}--></title>
+<link href="/resource/css/mini-common.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+body,html{margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;}
+ #frm1 .mini-textbox, #frm1 .mini-combobox{ width: 100px; } 
+</style>
+<!--{include file='../local_js.html'}-->
+<script type="text/javascript">
+var APP='<!--{$controller}-->',grid = null;
+var ary_pay_types = <!--{$pay_types}-->;
+var ary_pay_status = <!--{$pay_status}-->;
+var ary_order_status = <!--{$order_status}-->;
+$(document).ready(function(){ setTimeout(init,0); });
+function init()
+{
+	mini.parse();
+	create_contextmenu();
+	grid = mini.get("datagrid1");
+	query();
+}
+
+function create_contextmenu()
+{
+	var ary_actions = [
+							{id: "preview", text: "订单详情",iconCls:"icon-search"},		
+							{id: "update", text: "修改订单",iconCls:"icon-edit"},		
+							{id: "close_order", text: "关闭订单",iconCls:"icon-close"},		
+							{id: "delete_order", text: "删除订单",iconCls:"icon-close"},		
+							{id: "pay_for", text: "代为付款"},		
+							{id: "query_paystatus", text: "查询付款状态",iconCls:"icon-search"},	
+							{id: "query_express", text: "物流状态跟踪",iconCls:"icon-car"},		
+							{id: "refund", text: "退款",iconCls:"icon-undo"}
+						];
+	
+	mini.get('gridMenu').loadList(ary_actions);
+}
+
+function query()
+{
+	var frm1 = new mini.Form('frm1');
+	frm1.validate();
+	if(!frm1.isValid()){ return; }
+	var o = frm1.getData(true);
+	grid.load(o);
+	grid.clearSelect();
+}
+
+//当表格重新加载的时候
+function onGridLoad(e)
+{
+	if(grid.getData().length <= 0)
+	{
+		grid.setEmptyText('没有查询到相关数据 ...');
+		grid.setShowEmptyText(true);
+	}
+}
+
+//查询结束后自定义列
+function resetcoloumn(e)
+{
+	var field = e.field,value = e.value,column = e.column;
+	var row = e.record;
+	switch(field){
+		case 'cover_photo':
+			var img = '<img class="cover_photo" src="'+row.cover_photo+'" />';
+			e.cellHtml = img;
+			break;
+		case 'name':
+			var name = '<span class="underline pointer" onclick="preview(' + 
+							row.id+',\''+row.name+'\')">'+value+'</span>';
+			e.cellHtml = name;
+			break;
+	}
+}
+
+//预览商品
+function preview(id,title)
+{
+    if(title == undefined){ return; }
+    var url = '/?app=product_controller_ussv&act=preview&id=' + id;
+    var d = {
+                url: url,
+                height: 550,
+                width: 900,
+                title: title
+            };
+    desktop.opennew(d);
+}
+
+function update(id,order_num)
+{
+	var title = '修改订单 -> ' + order_num;
+	mini.open({
+		url: '/?app=' + APP + '&act=update&id=' + id,
+		showModal: true,allowResize:false,
+		title: title,
+		width: 500,height: 450,
+		ondestroy: function (action) { if (action == 'ok') { grid.reload(); } }
+	});	
+}
+
+function preview(id,order_num)
+{
+	var url = '/?app=' + APP + '&act=preview&id=' + id;
+    var d = {
+                url: url,
+                height: 570,
+                width: 900,
+                title: '订单 [' + order_num + '] 详情'
+            };
+    desktop.opennew(d);
+}
+
+function query_express(id,order_num)
+{
+	var url = '/?app=' + APP + '&act=query_express&order_num=' + order_num;
+    var d = {
+                url: url,
+                height: 500,
+                width: 700,
+                title: '跟踪订单 [' + order_num + '] 物流状态'
+            };
+    desktop.opennew(d);
+}
+
+//右键菜单处理
+function on_click_contextmenu(e)
+{
+	if(!e.isLeaf){return;}
+	var row = grid.getSelected();
+	if(!row){ return; }
+	var node = e.item;
+	switch(node.id)
+	{
+		case 'delete_order':
+		case 'close_order':
+			var msg = node.id == 'delete_order'
+				?	'只能删除超过24小时仍未付款的订单,要继续吗?'
+				:	'关闭订单后用户将无法为此订单付款,确定吗?';
+			mini.confirm(msg,'',function(action){
+				if (action == "ok"){
+					showloading();
+					$.ajax({
+						url: '/?app=' + APP + '&act=' + node.id + '&id=' + row.id,
+						type: "get",
+						success: function (json) {
+							successHandler(json,function(){
+								if(json.code == 1){
+									mini.alert(json.message,'',function(action){
+										if(action == 'ok'){ grid.reload(); }
+									});
+								}else{ mini.alert(json.message); }
+							});
+						},
+						error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+					});
+				}
+			});
+			break;
+		case 'query_paystatus':
+			showloading('正在查询...');
+			$.ajax({
+				url: '/?app=' + APP + '&act=query_paystatus&id=' + row.id,
+				type: "get",
+				success: function (json) {
+					successHandler(json,function(){
+						if(json.code == 1){
+							mini.alert(json.message,'',function(action){
+								if(action == 'ok'){ grid.reload(); }
+							});
+						}else{ mini.alert(json.message); }
+					});
+				},
+				error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+			});
+			break;	
+		case 'refund':
+			var title = '订单 -> ' + row.order_num + ' 退款情况';
+			mini.open({
+				url: '/?app=refund_controller_ussv&act=refund&id=' + row.id,
+				showModal: true,allowResize:false,
+				title: title,
+				width: 800,height: 450,
+				ondestroy: function (action) { grid.reload(); }
+			});	
+			break;	
+		case 'query_express':
+			query_express(row.id,row.order_num);
+			break;
+		case 'preview':
+			preview(row.id,row.order_num);
+			break;	
+		case 'update':
+			update(row.id,row.order_num);
+			break;	
+		case 'pay_for':
+			var title = '订单 -> ' + row.order_num + ' 代付款';
+			var url_app = row.pay_type == 2?'alipay':'wechat';
+			mini.open({
+				url: '/?app=pay_controller_common&act=pay_for&id=' + row.id,
+				showModal: true,allowResize:false,
+				title: title,
+				width: 400,height: 450,
+				ondestroy: function (action) { grid.reload(); }
+			});	
+			break;	
+	}
+}
+
+function open_report()
+{
+	mini.open({
+		url: '/?app=report_controller_ussv&act=index',
+		showModal: true,allowResize:false,
+		title: '订单数据统计分析',
+		width: 700,height: 450,
+		ondestroy: function (action) { grid.reload(); }
+	});	
+}
+
+function onBeforeOpen(e)
+{
+	var menu = e.sender;
+    var row = grid.getSelected();//如果是空记录就阻止右键
+    if (!row) { e.cancel = true; e.htmlEvent.preventDefault(); return; }
+
+	if(row.pay_status == 1 || row.order_status < 0){
+		mini.get('pay_for', menu).disable();
+		mini.get('close_order', menu).disable();
+	}else{
+		mini.get('pay_for', menu).enable();
+		mini.get('close_order', menu).enable();
+	}
+
+	if(row.pay_status > 0 || row.order_status > 0){
+		mini.get('delete_order', menu).disable();
+	}else{
+		mini.get('delete_order', menu).enable();
+	}
+}
+</script>
+</head>
+<body> 
+<div class="mini-toolbar top_bar">
+    <table style="width:100%;">
+        <tr>
+        <td style="width:100%;" id="frm1">
+        	<div name="pay_type" class="mini-combobox" emptyText="付款方式"
+	        	showNullItem="true" data="ary_pay_types"></div>
+        	<div name="pay_status" class="mini-combobox" emptyText="付款状态"
+	        	showNullItem="true" data="ary_pay_status"></div>
+        	<div name="order_status" class="mini-combobox" emptyText="订单状态"
+	        	showNullItem="true" data="ary_order_status"></div>
+        	<div name="order_time" class="mini-datepicker" style="width: 100px"
+		        	errorMode="border" emptyText="下单日期" onenter="query"></div>
+        	<div name="phone_num" class="mini-textbox" style="width: 120px"
+		        	errorMode="border" emptyText="客户手机号,11位数"
+		        	vtype="int;rangeLength:11,11;" onenter="query"></div>
+        	<a class="mini-button" iconCls="icon-search" plain="true" 
+        			onclick="query">查询</a>
+        	<span class="separator"></span>
+        	<a class="mini-button" iconCls="icon-node" plain="true" 
+        			onclick="open_report">统计分析</a>
+        </td>
+        <td style="white-space:nowrap;">* 点击鼠标右键进行管理</td>
+        </tr>
+    </table>
+</div>
+<div class="mini-fit">
+    <div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;"
+        allowCellWrap="true" allowAlternating="true" showPager="true" pageSize="20"
+            allowResize="false" url="/?app=<!--{$controller}-->&act=query_orders"
+            onload="onGridLoad" multiSelect="false" ondrawcell="resetcoloumn"
+           contextMenu="#gridMenu" borderStyle="border-top:0">
+        <div property="columns">
+            <!-- <div type="checkcolumn"></div> -->
+			<div field="order_num" width="70" align="center" headerAlign="center">订单编号</div>
+			<div field="order_time" width="85" align="center" headerAlign="center">下单时间</div>
+			<div field="order_status_txt" width="50" align="center" 
+							headerAlign="center">订单状态</div>
+            <div headerAlign="center">客户信息
+				<div property="columns">
+					<div field="phone_num" width="70" align="center" 
+						headerAlign="center">手机号</div>
+					<div field="realname" width="50" align="center" 
+						headerAlign="center">姓名</div>
+				</div>
+            </div>
+            <div headerAlign="center">付款
+				<div property="columns">
+					<div field="pay_type_txt" width="50" align="center" 
+							headerAlign="center">支付方式</div>
+					<div field="pay_status_txt" width="50" align="center" 
+							headerAlign="center">支付状态</div>
+					<div field="pay_time_txt" width="85" align="center" 
+							headerAlign="center">付款时间</div>
+				</div>
+            </div>
+            <div headerAlign="center">金额
+				<div property="columns">
+					<div field="total_amount" width="60" headerAlign="center" align="right"
+                            dataType="currency" currencyUnit="￥">应付金额</div>
+					<div field="paid_amount" width="60" headerAlign="center" align="right"
+                            dataType="currency" currencyUnit="￥">实付金额</div>
+					<div field="refund_amount" width="60" headerAlign="center" align="right"
+                            dataType="currency" currencyUnit="￥">退款金额</div>
+				</div>
+            </div>
+        </div>
+    </div> 
+</div>
+<div id="win2" class="mini-window" title="提交订单" 
+    style="width:450px;height:360px; display:none;" 
+    showMaxButton="false" showCollapseButton="false" showShadow="true"
+    showToolbar="false" showFooter="true" showModal="true" 
+    allowResize="false" allowDrag="true">
+    <div property="footer" style="text-align:center;padding:5px;">
+        <a class="mini-button" onclick="save_order">保存</a>
+        <span style="display:inline-block;width:25px;"></span>
+        <a class="mini-button" onclick="mini.get('win2').hide()">取消</a>
+    </div>
+    <div id="frm2">
+        <table border="0" cellspacing="0" cellpadding="2" class="table_default">
+		    <tr>
+		        <td colspan="4"><h4>联系人</h4></td>
+		    </tr>
+		    <tbody id="frm_basic">
+			    <tr>
+			        <td>联系电话：</td>
+			        <td><input name="phone_num" class="mini-textbox" enabled="false"/></td>
+			        <td>客人姓名：</td>
+			        <td><input name="realname" class="mini-textbox" /></td>
+			    </tr>
+		    </tbody>
+        	<tr>
+		        <td colspan="4"><h4>收货信息</h4></td>
+		    </tr>
+		    <tbody id="frm_recever">
+			    <tr>
+			        <td>联系手机号：</td>
+			        <td><input name="r_phone" class="mini-textbox"
+			        	required="true" errorMode="border" emptyText="11位数字"
+			        	vtype="int;rangeLength:11,11;" /></td>
+			        <td>收货人姓名：</td>
+			        <td><input name="r_name" class="mini-textbox" 
+			        	required="true" errorMode="border" /></td>
+			    </tr>
+			    <tr>
+			        <td>收货地址：</td>
+			        <td colspan="3"><input name="r_addr" class="mini-textbox"
+			        	required="true" errorMode="border" style="width: 100%"/></td>
+			    </tr>
+			    <tr>
+			        <td>邮政编码：</td>
+			        <td colspan="3"><input name="r_post" class="mini-textbox"
+			        	errorMode="border" vtype="int;rangeLength:6,6;" /></td>
+			    </tr>
+		    </tbody>
+		    <tr>
+		        <td colspan="4"><h4>其他</h4></td>
+		    </tr>
+		    <tbody id="frm_pay">
+			    <tr>
+			        <td>付款方式：</td>
+			        <td colspan="3"><div name="pay_type" class="mini-combobox" 
+			        	required="true" errorMode="border" emptyText="请选择"
+			        	showNullItem="true" data="ary_pay_types"></div></td>
+			    </tr>
+			    <tr>
+			        <td>实付总额：</td>
+			        <td><div name="paid_amount" class="mini-spinner" 
+			        	minValue="0" maxValue="999999" format="c2"
+			        	required="true" errorMode="border"></div></td>
+			        <td>应付总额：</td>
+			        <td><div name="total_amount" class="mini-spinner" 
+			        	minValue="0" maxValue="999999" format="c2"
+			        	enabled="false"></div></td>
+			    </tr>
+		    </tbody>
+		</table>
+    </div>
+</div>
+<ul id="gridMenu" class="mini-contextmenu" onbeforeopen="onBeforeOpen" 
+	onitemclick="on_click_contextmenu"></ul>
+</body>
+</html>

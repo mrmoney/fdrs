@@ -1,0 +1,337 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title><!--{$site_name}--></title>
+<link href="/resource/css/mini-common.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+body,html{margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;}
+.cover_photo{ max-width:150px;  }h4{ padding: 0;margin:0;color: #333; }
+ .table_default .mini-textbox, .table_default .mini-combobox{ width: 100px; } 
+ .table_default .mini-spinner{ width: 100px; }  .table_default{ margin:10px auto; }
+</style>
+<!--{include file='../local_js.html'}-->
+<script src="<!--{$res}-->/common.js" type="text/javascript"></script>
+<script type="text/javascript">
+var APP='<!--{$controller}-->',grid = null;
+var ary_pay_types = <!--{$pay_types}-->;
+$(document).ready(function(){ setTimeout(init,0); });
+function init()
+{
+	mini.parse();
+	grid = mini.get("datagrid1");
+	query();
+}
+
+function query()
+{
+	grid.load();
+	grid.clearSelect();
+}
+
+//当表格重新加载的时候
+function onGridLoad(e)
+{
+	if(grid.getData().length <= 0)
+	{
+		grid.setEmptyText('没有查询到相关数据 ...');
+		grid.setShowEmptyText(true);
+	}
+}
+
+//查询结束后自定义列
+function resetcoloumn(e)
+{
+	var field = e.field,value = e.value,column = e.column;
+	var row = e.record;
+	switch(field){
+		case 'cover_photo':
+			var img = '<img class="cover_photo" src="'+row.cover_photo+'" />';
+			e.cellHtml = img;
+			break;
+		case 'name':
+			var name = '<span class="underline pointer" onclick="preview(' + 
+							row.id+',\''+row.name+'\')">'+value+'</span>';
+			e.cellHtml = name;
+			break;
+	}
+}
+
+//预览商品
+function preview(id,title)
+{
+    if(title == undefined){ return; }
+    var url = '/?app=product_controller_ussv&act=preview&id=' + id;
+    var d = {
+                url: url,
+                height: 550,
+                width: 900,
+                title: title
+            };
+    desktop.opennew(d);
+}
+
+function remove(ids)
+{
+	showloading();
+	$.ajax({
+		url: '/?app=' + APP + '&act=remove',
+		data: { ids:ids },type:'post',
+		success: function (json) {
+			successHandler(json,function(){
+				if(json.code == 1){
+					grid.reload();
+				}else{
+					mini.alert(json.message);
+				}
+			});
+		},
+		error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+	});	
+}
+
+function clear()
+{
+	mini.confirm('您确定要清空此购物车吗', "确认",
+			function (action) {
+				if (action == "ok") {
+					showloading();
+					$.ajax({
+						url: '/?app=' + APP + '&act=clear',
+						data: {},type:'post',
+						success: function (json) {
+							successHandler(json,function(){
+								mini.alert(json.message,'',function(action){
+									if(json.code == 1){
+										grid.reload();
+									}
+								});
+							});
+						},
+						error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+					});	
+				}
+		}
+	);
+}
+
+function onActionRenderer(e)
+{
+	var record = e.record,column = e.column,s = '';
+    switch(column.name){
+        case 'remove_item':
+            s = '<span class="icon-remove actions" title="溢出" onclick="remove(' + 
+                    record.id+',\''+record.name+'\')"></span>';
+            break;
+    }
+    return s;
+}
+
+function onDrawSummaryCell(e)
+{
+	var result = e.result;
+    var grid = e.sender;
+    switch(e.field){
+    	case 'num':
+        	e.cellHtml = "<div style='text-align:center'>总数: " + e.value + "</div>";
+    		break;
+    	case 'total_amount':
+        	e.cellHtml = "<div style='text-align:right'>" + 
+        					mini.formatNumber(e.value,'c') + "</div>";
+    		break;
+    }
+}
+
+function oncellendedit(e)
+{
+	var row = e.record;
+	//console.log('->',row);
+	var o = { id:row.id,num:row.num };
+	showloading();
+	$.ajax({
+		url: '/?app=' + APP + '&act=update_num',
+		data: o,type:'post',
+		success: function (json) {
+			successHandler(json,function(){
+				grid.reload();
+			});
+		},
+		error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+	});	
+}
+
+function step_1()
+{
+	var frm1 = new mini.Form('frm1');
+	frm1.validate();
+	if(!frm1.isValid()){ return; }
+	var o = frm1.getData();
+	var phone_num = o.phone_num;
+	if(!isMobile(phone_num)){
+		mini.alert('您输入的手机号格式不正确');return;
+	}
+
+	showloading();
+	$.ajax({
+		url: '/?app=' + APP + '&act=order_prepare&phone_num=' + phone_num,
+		type:'get',
+		success: function (json) {
+			successHandler(json,function(){
+				var frm_basic = new mini.Form('frm_basic');
+				var frm_recever = new mini.Form('frm_recever');
+				var frm_pay = new mini.Form('frm_pay');
+				
+				frm_basic.setData(json.data.customer.basic);
+				frm_recever.setData(json.data.customer.recever);
+				frm_pay.setData(json.data.pay);
+
+				mini.get('win2').show();
+			});
+		},
+		error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+	});	
+}
+
+function save_order()
+{
+	var frm2 = new mini.Form('frm2');
+	frm2.validate();
+	if(!frm2.isValid()){ return; }
+	var o = frm2.getData(true);
+	showloading();
+	$.ajax({
+		url: '/?app=order_controller_ussv&act=save_order',
+		data:o,type:'post',
+		success: function (json) {
+			successHandler(json,function(){
+				mini.alert(json.message,'',function(action){
+					if(json.code == 1){
+						var win2 = mini.get('win2');
+						win2.hide();
+						grid.reload();
+					}
+				});
+			});
+		},
+		error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+	});	
+}
+</script>
+</head>
+<body> 
+<div class="mini-toolbar top_bar no_padding">
+    <table style="width:100%;">
+        <tr>
+        <td style="width:100%;">
+            <a class="mini-button" iconCls="icon-close" plain="true" onclick="clear">清空</a>
+        </td>
+        <td style="white-space:nowrap;" id="frm1">
+        	<label for="phone_num">客户手机号：</label>
+        	<input name="phone_num" class="mini-textbox" style="width: 120px"
+		        	required="true" errorMode="border" emptyText="11位数字"
+		        	vtype="int;rangeLength:11,11;"/>
+        	<a class="mini-button" id="btn_next" iconCls="icon-save" plain="true" 
+        			onclick="step_1">提交</a>
+        </td>
+        </tr>
+    </table>
+</div>
+<div class="mini-fit">
+    <div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;"
+        allowCellWrap="true" allowAlternating="true" showPager="true" borderStyle="border-top:0"
+            allowResize="false" url="/?app=<!--{$controller}-->&act=query"
+            onload="onGridLoad" multiSelect="true" ondrawcell="resetcoloumn"
+            allowCellEdit="true" allowCellSelect="true" editNextOnEnterKey="true"
+            editNextRowCell="true" showSummaryRow="true" 
+            ondrawsummarycell="onDrawSummaryCell" oncellendedit="oncellendedit">
+        <div property="columns">
+            <!-- <div type="checkcolumn"></div> -->
+            <div field="cover_photo" width="120" align="center" 
+            	headerAlign="center">产品图片</div>    
+            <div field="name" width="90" align="center" headerAlign="center">名称</div>
+            <div field="num" width="80" align="center" headerAlign="center" summaryType="sum">数量
+            	<input property="editor" class="mini-spinner"
+            		minValue="1" maxValue="9999" />
+            </div>
+            <div field="price1" width="80" headerAlign="center" align="right"
+                            dataType="currency" currencyUnit="￥">单价</div>
+            <div field="total_amount" width="80" headerAlign="center" align="right"
+                            dataType="currency" currencyUnit="￥" summaryType="sum">小计</div>
+            <div name="remove_item" width="40" headerAlign="center" 
+            	align="center" renderer="onActionRenderer" cellStyle="padding:0;">#</div>
+        </div>
+    </div> 
+</div>
+<div id="win2" class="mini-window" title="提交订单" 
+    style="width:450px;height:360px; display:none;" 
+    showMaxButton="false" showCollapseButton="false" showShadow="true"
+    showToolbar="false" showFooter="true" showModal="true" 
+    allowResize="false" allowDrag="true">
+    <div property="footer" style="text-align:center;padding:5px;">
+        <a class="mini-button" onclick="save_order">保存</a>
+        <span style="display:inline-block;width:25px;"></span>
+        <a class="mini-button" onclick="mini.get('win2').hide()">取消</a>
+    </div>
+    <div id="frm2">
+        <table border="0" cellspacing="0" cellpadding="2" class="table_default">
+		    <tr>
+		        <td colspan="4"><h4>联系人</h4></td>
+		    </tr>
+		    <tbody id="frm_basic">
+			    <tr>
+			        <td>联系电话：</td>
+			        <td><input name="phone_num" class="mini-textbox" enabled="false"/></td>
+			        <td>客人姓名：</td>
+			        <td><input name="realname" class="mini-textbox" /></td>
+			    </tr>
+		    </tbody>
+        	<tr>
+		        <td colspan="4"><h4>收货信息</h4></td>
+		    </tr>
+		    <tbody id="frm_recever">
+			    <tr>
+			        <td>联系手机号：</td>
+			        <td><input name="r_phone" class="mini-textbox"
+			        	required="true" errorMode="border" emptyText="11位数字"
+			        	vtype="int;rangeLength:11,11;" /></td>
+			        <td>收货人姓名：</td>
+			        <td><input name="r_name" class="mini-textbox" 
+			        	required="true" errorMode="border" /></td>
+			    </tr>
+			    <tr>
+			        <td>收货地址：</td>
+			        <td colspan="3"><input name="r_addr" class="mini-textbox"
+			        	required="true" errorMode="border" style="width: 100%"/></td>
+			    </tr>
+			    <tr>
+			        <td>邮政编码：</td>
+			        <td colspan="3"><input name="r_post" class="mini-textbox"
+			        	errorMode="border" vtype="int;rangeLength:6,6;" /></td>
+			    </tr>
+		    </tbody>
+		    <tr>
+		        <td colspan="4"><h4>其他</h4></td>
+		    </tr>
+		    <tbody id="frm_pay">
+			    <tr>
+			        <td>付款方式：</td>
+			        <td colspan="3"><div name="pay_type" class="mini-combobox" 
+			        	required="true" errorMode="border" emptyText="请选择"
+			        	showNullItem="true" data="ary_pay_types"></div></td>
+			    </tr>
+			    <tr>
+			        <td>实付总额：</td>
+			        <td><div name="paid_amount" class="mini-spinner" 
+			        	minValue="0" maxValue="999999" format="c2"
+			        	required="true" errorMode="border"></div></td>
+			        <td>应付总额：</td>
+			        <td><div name="total_amount" class="mini-spinner" 
+			        	minValue="0" maxValue="999999" format="c2"
+			        	enabled="false"></div></td>
+			    </tr>
+		    </tbody>
+		</table>
+    </div>
+</div>
+</body>
+</html>

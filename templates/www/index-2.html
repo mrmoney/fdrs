@@ -1,0 +1,513 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title><!--{$site_name}--></title>
+<meta name="renderer" content="webkit">
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=0,minimal-ui">
+<meta name="format-detection" content="telephone=no" />
+<meta name="description" content="" />
+<meta name="keywords" content="研究|金融|课题|项目" />
+<link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+<!-- 滚动轮播 -->
+<link href="/resource/layui/css/layui.css" rel="stylesheet" media="all" />
+<script type="text/javascript" src="/resource/layui/layui-2.3.min.js"></script>
+<link rel='stylesheet' type='text/css' href='/resource/metinfo6/css/basic.css'>
+<link rel="stylesheet" type="text/css" href="/resource/metinfo6/cache/index_cn.css"/>
+<link href="/resource/css/fdrs.css" rel="stylesheet" media="all" />
+<style type="text/css">
+
+</style>
+<!--[if lte IE 9]>
+<script src="/resource/metinfo6/js/lteie9.js"></script>
+<![endif]-->
+</head>
+<!--[if lte IE 8]>
+<div class="text-xs-center m-b-0 bg-blue-grey-100 alert">
+    你正在使用一个 <strong>过时</strong> 的浏览器。推荐安装Chrome浏览器，以提高您的体验。
+</div>
+<![endif]-->
+<body class="met-navfixed">
+<!--{include file = 'head.html'}-->
+<div class="news_list_met_27_2 fdrs-home-top-bg">
+	<div class="container newsbox" >
+		<!--左边新闻(带轮播图)-->
+		<div class="row">
+			<div class="item col-xs-12 col-lg-8 fdrs-scroll">
+		        <div class="ussv-home-scroll1">
+		        	<div class="layui-carousel" id="scroll1">
+		  				<div carousel-item>
+		        			<!--{foreach from=$photos_focus item=photo}-->
+		        			<!--{if $photo.content_id > 0}-->
+							<div class="fdrs-detail-link" item-id="<!--{$photo.content_id}-->"><a href="/content/<!--{$photo.content_id}-->"><img src="<!--{$photo.b_path}-->" alt="<!--{$photo.title}-->" /></a></div>
+							<!--{elseif $photo.subject_id > 0}-->
+							<div class="fdrs-detail-link" item-id="<!--{$photo.subject_id}-->"><a href="/subject/<!--{$photo.subject_id}-->"><img src="<!--{$photo.b_path}-->" alt="<!--{$photo.title}-->" /></a></div>
+							<!--{else}-->
+							<div><img src="<!--{$photo.b_path}-->" alt="<!--{$photo.title}-->" /></div>
+							<!--{/if}-->
+							<!--{/foreach}-->
+			        	</div>
+		        	</div>
+		        </div>
+	        </div>
+        	<div class="item col-xs-12 col-lg-4">
+                <div class="met-index-news fdrs-home-top-height">
+			        <div class="title clearfix">
+			            <h2 class="news-h">研究课题</h2>
+			            <p class="news-desc">Subject study</p>
+		            </div>
+			        <div class="left-img fdrs-scroll">
+			        	<div class="layui-carousel" id="scroll2">
+			  				<div carousel-item>
+			        			<!--{foreach from=$subjects item=subject}-->
+								<ul class="news-list">
+				            		<div class="fdrs-home-scroll fdrs-home-top-rt">
+										<h4>
+											<a href="/subject/<!--{$subject.id}-->">
+				                                <!--{$subject.topic}-->			
+				                            </a>
+										</h4>
+					            		<div class="right-img">
+											<!--{$subject.detail}-->
+									    </div>
+									    <div class="fdrs-split"></div>
+									</div>
+								    <!--{foreach from=$subject.items item=item}-->
+								    <li>
+										<a href="/content/<!--{$item.id}-->">
+											<i class="icon pe-angle-right"></i>
+			                                <!--{$item.topic}-->			
+			                            </a>
+									</li>
+									<!--{/foreach}-->
+								</ul>
+								<!--{/foreach}-->
+				        	</div>
+			        	</div>
+			        </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="news_list_met_27_2">
+	<div class="container newsbox">
+		<div class="row">
+			<!-- 左边新闻框 -->
+			<div class="item  col-xs-12 col-lg-4">
+		        <div class="met-index-news">
+			        <div class="title clearfix">
+			            <h2 class="news-h">政策法规</h2>
+			            <p class="news-desc">Policy</p>
+		            </div>
+		            <!--{if $zcfg_num <= 4}-->
+			        <div class="left-img fdrs-scroll">
+			        	<div class="layui-carousel" id="scroll_zcfg">
+			  				<div carousel-item>
+			        			<!--{foreach from=$zcfg item=row}-->
+								<div class="fdrs-home-scroll">
+									<h4>
+										<a href="/content/<!--{$row.id}-->">
+											<i class="icon pe-angle-right"></i>
+			                                <!--{$row.topic}-->			
+			                            </a>
+									</h4>
+				            		<div class="right-img">
+										<!--{$row.detail}-->
+								    </div>
+								</div>
+								<!--{/foreach}-->
+				        	</div>
+			        	</div>
+			        </div>
+			        <!--{else}-->
+			        <ul class="news-list fdrs-home-min-h">
+			        	<!--{foreach from=$zcfg item=row}-->
+		        		<li>
+							<a href="/content/<!--{$row.id}-->">
+							<span><!--{$row.publishtime}--></span>
+							<!--{$row.topic}--></a>
+						</li>
+			        	<!--{/foreach}-->
+			        </ul>
+			        <div class="more">
+					   <a href="/contents/5">更多</a>
+			        </div>
+			        <!--{/if}-->
+				</div>
+		    </div>
+		    <!-- 左边新闻框 -->
+		    
+		    <!--中间新闻框-->
+		    <div class="item  col-xs-12  col-lg-4">
+		        <div class="met-index-news">
+		            <div class="title clearfix">
+			            <h2 class="news-h">金融聚焦</h2>
+			            <p class="news-desc">Financial Focus</p>
+		            </div>
+			        <!--{if $jrjj_num <= 4}-->
+			        <div class="left-img fdrs-scroll">
+			        	<div class="layui-carousel" id="scroll_jrjj">
+			  				<div carousel-item>
+			        			<!--{foreach from=$jrjj item=row}-->
+								<div class="fdrs-home-scroll">
+									<h4>
+										<a href="/content/<!--{$row.id}-->">
+											<i class="icon pe-angle-right"></i>
+			                                <!--{$row.topic}-->			
+			                            </a>
+									</h4>
+				            		<div class="right-img">
+										<!--{$row.detail}-->
+								    </div>
+								</div>
+								<!--{/foreach}-->
+				        	</div>
+			        	</div>
+			        </div>
+			        <!--{else}-->
+			        <ul class="news-list fdrs-home-min-h">
+			        	<!--{foreach from=$jrjj item=row}-->
+		        		<li>
+							<a href="/content/<!--{$row.id}-->">
+							<span><!--{$row.publishtime}--></span>
+							<!--{$row.topic}--></a>
+						</li>
+			        	<!--{/foreach}-->
+			        </ul>
+			        <div class="more">
+					   <a href="/contents/2">更多</a>
+			        </div>
+			        <!--{/if}-->
+			    </div>
+		    </div>
+		    <!--中间新闻框-->
+		    <div class="item  col-xs-12 col-lg-4">
+		        <div class="met-index-news">
+			        <div class="title clearfix">
+			            <h2 class="news-h">活动公告</h2>
+			            <p class="news-desc">Activity</p>
+			        </div> 
+			        <!--{if $hdgg_num <= 4}-->
+			        <div class="left-img fdrs-scroll">
+			        	<div class="layui-carousel" id="scroll_hdgg">
+			  				<div carousel-item>
+			        			<!--{foreach from=$hdgg item=row}-->
+								<div class="fdrs-home-scroll">
+									<h4>
+										<a href="/content/<!--{$row.id}-->">
+											<i class="icon pe-angle-right"></i>
+			                                <!--{$row.topic}-->			
+			                            </a>
+									</h4>
+				            		<div class="right-img">
+										<!--{$row.detail}-->
+								    </div>
+								</div>
+								<!--{/foreach}-->
+				        	</div>
+			        	</div>
+			        </div>
+			        <!--{else}-->
+			        <ul class="news-list fdrs-home-min-h">
+			        	<!--{foreach from=$hdgg item=row}-->
+		        		<li>
+							<a href="/content/<!--{$row.id}-->">
+							<span><!--{$row.publishtime}--></span>
+							<!--{$row.topic}--></a>
+						</li>
+			        	<!--{/foreach}-->
+			        </ul>
+			        <div class="more">
+					   <a href="/contents/6">更多</a>
+			        </div>
+			        <!--{/if}-->
+				</div>
+		    </div>
+		</div>
+	</div>
+</div>
+
+<div class="news_list_met_27_3">
+	<div class="container newsbox">
+		<div class="row">
+			<!-- 左边新闻框 -->
+			<div class="item  col-xs-12  col-lg-4">
+		        <div class="met-index-news ">
+		        	<div class="title clearfix">
+			            <h2 class="news-h">研究会动态</h2>
+			            <p class="news-desc">FDRS News</p>
+			        </div> 
+			        <!--{if $yjhdt_num <= 4}-->
+			        <div class="left-img fdrs-scroll">
+			        	<div class="layui-carousel" id="scroll_yjhdt">
+			  				<div carousel-item>
+			        			<!--{foreach from=$yjhdt item=row}-->
+								<div class="fdrs-home-scroll">
+									<h4>
+										<a href="/content/<!--{$row.id}-->">
+											<i class="icon pe-angle-right"></i>
+			                                <!--{$row.topic}-->			
+			                            </a>
+									</h4>
+				            		<div class="right-img">
+										<!--{$row.detail}-->
+								    </div>
+								</div>
+								<!--{/foreach}-->
+				        	</div>
+			        	</div>
+			        </div>
+			        <!--{else}-->
+			        <ul class="news-list fdrs-home-min-h">
+			        	<!--{foreach from=$yjhdt item=row}-->
+		        		<li>
+							<a href="/content/<!--{$row.id}-->">
+							<span><!--{$row.publishtime}--></span>
+							<!--{$row.topic}--></a>
+						</li>
+			        	<!--{/foreach}-->
+			        </ul>
+			        <div class="more">
+					   <a href="/contents/3">更多</a>
+			        </div>
+			        <!--{/if}-->
+			    </div>
+		    </div>
+		    <!-- 左边新闻框 -->
+		    
+		    <!--中间新闻框-->
+		    <div class="item  col-xs-12 col-lg-4">
+		        <div class="met-index-news">
+			        <div class="title clearfix">
+			            <h2 class="news-h">会员动态</h2>
+			            <p class="news-desc">Member News</p>
+		            </div>
+		            <!--{if $hydt_num <= 4}-->
+			        <div class="left-img fdrs-scroll">
+			        	<div class="layui-carousel" id="scroll_hydt">
+			  				<div carousel-item>
+			        			<!--{foreach from=$hydt item=row}-->
+								<div class="fdrs-home-scroll">
+									<h4>
+										<a href="/content/<!--{$row.id}-->">
+											<i class="icon pe-angle-right"></i>
+			                                <!--{$row.topic}-->			
+			                            </a>
+									</h4>
+				            		<div class="right-img">
+										<!--{$row.detail}-->
+								    </div>
+								</div>
+								<!--{/foreach}-->
+				        	</div>
+			        	</div>
+			        </div>
+			        <!--{else}-->
+			        <ul class="news-list fdrs-home-min-h">
+			        	<!--{foreach from=$hydt item=row}-->
+		        		<li>
+							<a href="/content/<!--{$row.id}-->">
+							<span><!--{$row.publishtime}--></span>
+							<!--{$row.topic}--></a>
+						</li>
+			        	<!--{/foreach}-->
+			        </ul>
+			        <div class="more">
+					   <a href="/contents/4">更多</a>
+			        </div>
+			        <!--{/if}-->
+			    </div>
+		    </div>
+		    <!--中间新闻框-->
+		    <!--右侧展示区块-->
+		    <div class="item col-xs-12 col-lg-4">
+				<div class="met-index-product">
+					<div class="container">
+					    <div class="title clearfix">
+					    	<h2 class="news-h">联系我们</h2>
+			                <p class="news-desc">Contact</p>
+						</div>
+						<div class="nav-tabs-vertical fdrs-home-contact">
+						    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+							    <tr>
+							    	<td class="fdrs-home-contact-left">
+										<div>电话：020-38626087</div>
+										<div>邮件：hello@qq.com</div>
+										<div>地址：广东省广州市天河区瘦狗岭路413号A2栋30层</div>
+										<!-- <div class="more"><a>扫码关注我们</a></div> -->
+							    	</td>
+							    	<td class="fdrs-home-qrcode"><img src="/images/gzh.jpg">
+							    	<div>扫码关注我们</div></td>
+							    </tr>
+						    </table>
+	                    </div>
+	                </div>
+	            </div>
+			</div>
+		    <!--右侧展示区块-->
+		</div>
+	</div>
+</div>
+
+<div class="news_list_met_27_3">
+	<div class="container newsbox">
+		<div class="row">
+			<!-- 左边新闻框 -->
+			<div class="item  col-xs-12  col-lg-12">
+				<div class="met-index-news" style="border: none;">
+			        <div class="title clearfix">
+			            <h2 class="news-h">研究会会员</h2>
+			            <p class="news-desc">Members</p>
+		            </div>
+			        <div class="left-img fdrs-scroll">
+			        	<!--{if $members_num > 0}-->
+			        	<div class="layui-carousel" id="scroll_members">
+			  				<div carousel-item>
+			  					<!--{foreach from=$members item=member}-->
+			        			<div>
+				        			<div class="row">
+				        				<!--{foreach from=$member item=item}-->
+				        				<div member_id="<!--{$item.id}-->" title="<!--{$item.title}-->" class="item col-xs-12 col-lg-2 fdrs-home-logo">
+				        				<img src="<!--{$item.logo_path}-->"/>
+				        				</div>
+			  							<!--{/foreach}-->
+				        			</div>
+			        			</div>
+			  					<!--{/foreach}-->
+				        	</div>
+			        	</div>
+			        	<!--{/if}-->
+			        </div>
+			    </div>
+			</div>
+		    <!--右侧展示区块-->
+		</div>
+	</div>
+</div>
+<!--{include file = 'foot.html'}-->
+<script type="text/javascript">
+layui.use(['carousel','jquery'<!--{if $members_num > 0}-->,'layer'<!--{/if}-->], function(){
+  var carousel = layui.carousel,$ = layui.jquery;
+
+  carousel.render({
+    elem: '#scroll1'
+    ,arrow: 'always' 
+    ,indicator:'none'
+    ,height:'370px',width:'100%'
+    ,interval:3000
+    ,anim: 'fade' 
+  });
+
+  carousel.render({
+    elem: '#scroll2'
+    ,arrow: 'none' 
+    ,indicator:'none'
+    ,height:'370px',width:'100%'
+    ,interval:5000
+    ,anim: 'fade' 
+  });
+
+  <!--{if $subject_num <= 4}-->
+  carousel.render({
+    elem: '#scroll_yjkt'
+    ,arrow: 'hover' 
+    ,indicator:'none'
+    ,height:'186px',width:'100%'
+    ,interval:3000
+    ,anim: 'updown' 
+  });
+  <!--{/if}-->
+
+  <!--{if $zcfg_num <= 4}-->
+  carousel.render({
+    elem: '#scroll_zcfg'
+    ,arrow: 'hover' 
+    ,indicator:'none'
+    ,height:'186px',width:'100%'
+    ,interval:3000
+    ,anim: 'updown' 
+  });
+  <!--{/if}-->
+
+  <!--{if $jrjj_num <= 4}-->
+  carousel.render({
+    elem: '#scroll_jrjj'
+    ,arrow: 'hover' 
+    ,indicator:'none'
+    ,height:'186px',width:'100%'
+    ,interval:3000
+    ,anim: 'updown' 
+  });
+  <!--{/if}-->
+
+  <!--{if $hdgg_num <= 4}-->
+  carousel.render({
+    elem: '#scroll_hdgg'
+    ,arrow: 'hover' 
+    ,indicator:'none'
+    ,height:'186px',width:'100%'
+    ,interval:3000
+    ,anim: 'updown' 
+  });
+  <!--{/if}-->
+
+  <!--{if $yjhdt_num <= 4}-->
+  carousel.render({
+    elem: '#scroll_yjhdt'
+    ,arrow: 'hover' 
+    ,indicator:'none'
+    ,height:'186px',width:'100%'
+    ,interval:3000
+    ,anim: 'updown' 
+  });
+  <!--{/if}-->
+
+  <!--{if $hydt_num <= 4}-->
+  carousel.render({
+    elem: '#scroll_hydt'
+    ,arrow: 'hover' 
+    ,indicator:'none'
+    ,height:'186px',width:'100%'
+    ,interval:3000
+    ,anim: 'updown' 
+  });
+  <!--{/if}-->
+
+  <!--{if $members_num > 0}-->
+  carousel.render({
+    elem: '#scroll_members'
+    ,arrow: 'none' 
+    ,indicator:'none'
+    ,height:'120px',width:'100%'
+    ,interval:3000
+    ,anim: 'updown' 
+  });
+
+  var layer = layui.layer;
+  $('.fdrs-home-logo').on('click',function(index){
+  	var member_id = $(this).attr('member_id');
+  	var member_name = $(this).attr('title');
+  	layer.open({
+	    type: 2, title: member_name,
+	    closeBtn: 1, shadeClose: true,
+	    area:['800px','500px'],
+	    content: "/member/" + member_id
+	  });
+  });
+
+  <!--{/if}-->
+  
+  // home_btn_over
+  // $('.main1 .sort a').each(function(index){
+  // 	var _this = this;
+  // 	$(this).mouseover(function(){ $(_this).addClass('home_btn_over'); });
+  // 	$(this).mouseout(function(){$(_this).removeClass('home_btn_over');});
+  // });
+
+});
+</script> 
+</body>
+</html>

@@ -1,0 +1,1 @@
+<?php include('smarty-3.1.27/Smarty.class.php');//龙?>

@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title><!--{$site_name}--></title>
+<link href="/resource/css/mini-common.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+body,html{margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;}
+</style>
+<!--{include file='../local_js.html'}-->
+<script src="https://cdn.bootcss.com/echarts/3.7.1/echarts.min.js"></script>
+<script type="text/javascript">
+var APP='<!--{$controller}-->',chartOption = {};
+$(document).ready(function(){ setTimeout(init,0); });
+function init()
+{
+	mini.parse();
+	buildChart([],[],[]);
+	query();
+}
+
+function buildChart(xAxisData,seriesData1,seriesData2)
+{
+	var option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                label: { backgroundColor: '#6a7985' }
+            }
+        },
+        legend: { data: ['实收总额', '退款总额'] },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        grid: {
+            left: '10%', right: '10%', bottom: '5%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category', boundaryGap: false,
+                data: xAxisData
+            }
+        ],
+        yAxis: [ { type: 'value' } ],
+        series: [
+            {
+                name: '实收总额', type: 'line', stack: '总量',
+                //areaStyle: { normal: {} },
+                data: seriesData1
+            },
+            {
+                name: '退款总额', type: 'line', stack: '总量',
+                //areaStyle: { normal: {} },
+                data: seriesData2
+            }
+        ]
+    };
+
+    var chart = echarts.init(document.getElementById('chartContainer'));
+    chart.setOption(option);
+}
+
+function query(e)
+{
+	var frm1 = new mini.Form('frm1');
+	frm1.validate();
+	if(!frm1.isValid()){ return; }
+	var o = frm1.getData(true);
+	showloading();
+	$.ajax({
+		url: '/?app=' + APP + '&act=query',
+		data:o,type:'post',
+		success: function (json) {
+				successHandler(json,function(){
+					if(json.code == 1){
+						var data = json.data;
+						if(data != null && data.xAxisData != null){
+							var seriesData1 = [],seriesData2 = [];
+                            var xAxisData = [],total_desc = [];
+							if(data.xAxisData != null){ xAxisData = data.xAxisData; }
+							if(data.seriesData1 != null){ seriesData1 = data.seriesData1; }
+							if(data.seriesData2 != null){ seriesData2 = data.seriesData2; }
+                            total_desc.push('实收总额：￥' + data.total_amount);
+                            total_desc.push('退款总额：￥' + data.refund_amount);
+                            $('#total_c').text(total_desc.join('，'));
+							buildChart(xAxisData,seriesData1,seriesData2);
+						}else{
+							mini.alert(json.message,'',function(action){
+								buildChart([],[],[]);
+							});
+						}
+					}else{ mini.alert(json.message); }
+				});
+			},
+		error: function (jqXHR, textStatus, errorThrown) { error_req(); }
+	});	
+}
+</script>
+</head>
+<body> 
+<div class="mini-toolbar top_bar">
+	<table style="width:100%;">
+        <tr>
+        <td style="width:100%;" id="frm1">
+			<div class="mini-datepicker" name="s_date" emptyText="起始日期" onenter="query"
+				value="<!--{$s_date}-->"
+				style="width: 100px;" required="true" errorMode="border"></div> 至
+			<div class="mini-datepicker" name="e_date" emptyText="结束日期" onenter="query"
+				style="width: 100px;" errorMode="border"></div>
+		    <a class="mini-button" iconCls="icon-search" onclick="query">查询</a>
+        </td>
+        <td style="white-space:nowrap;" id="total_c"></td>
+        </tr>
+    </table>
+</div>
+<div class="mini-fit">	
+	<div id="chartContainer" style="height:100%;width:100%;"></div>
+</div> 
+<div class="mini-toolbar bottom_bar">
+    <a class="mini-button" onclick="closeWindow('close')">关闭</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+﻿body{/*padding-left:10px;*/font-size:12px;font-family:"微软雅黑"}
+h1{font-size:20px;font-family:Verdana;}
+.description{padding-bottom:30px;font-family:Verdana;}
+.description h3{color:#CC0000;font-size:16px;margin:0 30px 10px 0px;
+	padding:45px 0 8px border-bottom:solid 1px #888;}
+/*页顶*/
+.header{background:url(../images/48m58PICeKb_1024.jpg) repeat-x 0 -1px;}
+.header div{color:#333;}   
+.header_logo{height:50px;line-height:50px;margin-left:3px;margin-right:3px;
+	padding-left:10px;float:left;}
+.mini-layout-region-south img{vertical-align:top;}
+<!--表格部分-->
+h3 {font-size: 20px;font-weight: bold;margin: 12px 0;}p{margin:0;}
+h4{font-size:14px;color:#CC0000;margin:10px;margin-bottom:5px;}
+.table_default{border-collapse:collapse;font-size: 1em;margin: 1em;width: auto;color:#131313;}
+.table_default th,.td_title{background:#eee;font-weight:bold;line-height:18px;color:black; text-align:center}
+.td_title{font-weight:normal!important;}
+.table_default th, .table_default td{border: 1px solid #ccc;padding: 0.25em 0.5em;vertical-align: top;line-height:16px;}
+.actions{ width:16px;height:16px;overflow:hidden;margin:auto;text-align:center;display:block;cursor:pointer; }
+/* 仅作用在顶层表格或者表格自身 */
+.table_self{ border-collapse:collapse;font-size: 1em;margin: 1em;width: auto;color:#131313; }
+.td_self{ border: 1px solid #ccc;padding: 0.25em 0.5em;vertical-align: top;line-height:16px; }
+
+.no_padding{ padding: 0!important; }
+.no_border{border:none!important;}.no_border td{border:none!important;}
+.view_item_link{ cursor:pointer; color:#004C7D; }
+.is_cancel{text-decoration:line-through;color:red!important;}
+.underline{ text-decoration:underline; }.pointer{ cursor:pointer; }
+.mytooltip { min-width:180px;table-layout:fixed; text-align:left; }
+.mytooltip td{ line-height:20px;max-width:300px; }
+.is_ok{ color:green; }.is_notok{ color:red; }
+.ok_row{ background:#B3FFB3; }.bad_row{ background:#EEE;color:#999; }
+.bottom_bar{text-align:center;border-bottom:0!important;}.top_bar{border-top:0!important;}
+.top_bar,.bottom_bar{padding:5px!important;border-left:0!important;border-right:0!important;}
+
+a{text-decoration:none; color:#333;}a:hover{text-decoration:underline;color:#333;}
+ul{margin:5px;margin-left:25px;font-family:Verdana;}
+.description{padding-bottom:10px;font-family:Verdana; padding-left:2px;}
+.description h3{color:#CC0000;font-size:16px;margin:0 30px 10px 0px;padding:15px 0 8px;border-bottom:solid 1px #888;}
+/*把mini控件作为标签使用*/
+.asLabel .mini-textbox-border,.asLabel .mini-textbox-input,
+.asLabel .mini-buttonedit-border,.asLabel .mini-buttonedit-input,
+.asLabel .mini-textboxlist-border{border:0;background:none;cursor:default;}
+.asLabel .mini-buttonedit-button,.asLabel .mini-textboxlist-close{display:none;}
+.asLabel .mini-textboxlist-item{padding-right:8px;}  
+/*自定义图标*/
+.icon-car{ background:url(../miniui/myres/images/car.gif) no-repeat; }

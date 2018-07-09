@@ -1,0 +1,415 @@
+@charset "utf-8";
+
+* {
+	padding: 0px;
+	margin: 0px;
+	font-family: "微软雅黑";
+}
+
+a {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+img {
+	border: none;
+}
+
+body {
+	font-size: 12px;
+	background: white;
+	background-position: top center;
+	background-repeat: no-repeat;
+}
+
+#main {
+	width: 1156px;
+	margin: 0 auto;
+	min-height: 400px;
+}
+
+.top {
+	width: 1156px;
+	height: 110px;
+	margin: 0 auto;
+	position: relative;
+}
+
+.top .left {
+	width: 318px;
+	height: 110px;
+	float: left;
+}
+
+.top .left img {
+	margin-top: 37px;
+}
+
+.top .center {
+	width: 630px;
+	height: 110px;
+	float: right;
+}
+
+.top .center ul {
+	width: 630px;
+	list-style: none;
+	display: block;
+	float: left;
+	margin-top: 55px;
+}
+
+.top .center ul li {
+	width: 69px;
+	height: 55px;
+	float: left;
+	font-size: 14px;
+	margin-right: 21px;
+	cursor: pointer;
+}
+
+.top .center ul li.sel {
+	border-bottom: 4px solid #2b64b3;
+}
+
+.top .center ul li p {
+	color: black;
+}
+
+.top .center ul li p.en {
+	font-size: 11px;
+}
+
+.top .right {
+	width: 90px;
+	height: 110px;
+	float: right;
+	position: relative;
+}
+
+.top .right .rg_lg {
+	width: 35px;
+	height: 35px;
+	display: block;
+	float: right;
+	margin-top: 58px;
+}
+
+.top .right .rg_lg a {
+	color: black;
+}
+
+.top .right .top_search {
+	width: 34px;
+	height: 35px;
+	display: block;
+	margin-top: 58px;
+	float: right;
+	background: url(../img/top_search.png) no-repeat;
+	padding: 0 10px 20px 0;
+}
+
+.top .right .search_div {
+	display: none;
+	position: absolute;
+	width: 290px;
+	height: 80px;
+	top: 110px;
+	right: 10px;
+	border-top: 4px solid green;
+	background: #fffffe;
+	box-shadow: 0px 0px 5px #888888;
+	z-index: 999;
+}
+
+#search_form {
+	width: 266px;
+	height: 30px;
+	display: block;
+	margin: 12px;
+}
+
+#search_input {
+	border: none;
+	width: 236px;
+	height: 30px;
+	background: #f8f8f8;
+	color: #a4c2dc;
+	text-indent: 12px;
+	line-height: 30px;
+	float: left;
+	margin-top: 8px;
+}
+
+#search_form a {
+	display: block;
+	width: 30px;
+	height: 30px;
+	margin-top: 8px;
+	float: right;
+	background: url(../img/search_btn.png);
+}
+
+.top_split {
+	width: 100%;
+	height: 4px;
+	background: url(../img/top_split.png) repeat-x;
+	z-index: -1;
+}
+
+.top_split .top_split_mn {
+	width: 1130px;
+	height: 44px;
+	line-height: 44px;
+	margin: 0 auto;
+}
+
+.top_split .top_split_mn a {
+	float: right;
+	font-size: 15px;
+	color: #2b64b3;
+}
+
+.top_split .top_split_mn a.return {
+	text-decoration: underline;
+	margin-left: 15px;
+}
+
+.top_split .top_split_mn a.leave {
+	color: #4f4d4e;
+}
+
+.top_split .top_split_mn .top_split_sp {
+	width: 2px;
+	height: 15px;
+	background: #4f4d4e;
+	float: right;
+	margin: 16px 10px 0 5px;
+}
+
+.drop_menu {
+	z-index: 999;
+	width: 124px;
+	display: none;
+	position: absolute;
+	margin: 10px 0 0 0;
+	background: #fffffe;
+	background-size: 100% 100%;
+	color: white;
+	list-style: none;
+	border-top: 4px solid #2b64b2;
+	box-shadow: 0px 0px 5px #888888;
+	top: 100px;
+	left: 700px;
+}
+
+.drop_menu ul {
+	-webkit-padding-start: 0px;
+	margin-top: 10px;
+	list-style: none;
+}
+
+.drop_menu ul li {
+	text-align: center;
+	height: 37px;
+}
+
+.drop_menu ul li a {
+	color: #4f4d4e;
+	width: 100px;
+	display: block;
+	height: 36px;
+	margin: 0 auto;
+	line-height: 36px;
+	border-bottom: 1px dotted #a2a2a2;
+}
+
+.drop_menu ul li a:hover {
+	color: #2b64b2;
+}
+
+.bottom {
+	width: 100%;
+	height: 217px;
+	background: url(../img/bottom_bg.png) repeat-x;
+}
+
+.bottom .split {
+	width: 2px;
+	height: 104px;
+	float: left;
+	margin-top: 80px;
+}
+
+.bottom .split span {
+	display: block;
+	width: 50%;
+	height: 100%;
+	float: left;
+}
+
+.bottom ul {
+	width: 1156px;
+	height: 217px;
+	margin: 0 auto;
+	list-style: none;
+}
+
+.bottom ul li {
+	color: white;
+	float: left;
+	width: 384px;
+	height: 217px;
+	margin: 0 auto;
+	list-style: none;
+	font-size: 14px;
+}
+
+.bottom ul li .link {
+	width: 330px;
+	min-height: 40px;
+	margin-left: 40px;
+	margin-top: 24px;
+}
+
+.bottom ul li .link a{
+	margin-right: 10px;
+	font-size: 13px;
+	color:white;
+}
+
+/*
+公共页面布局样式
+*/
+.share {
+	width: 100%;
+	min-height: 407px;
+	background: #f9f9f9;
+	position: relative;
+	z-index: 99;
+	overflow: auto;
+}
+
+.share .center {
+	width: 1156px;
+	margin: 0 auto;
+	min-height: 407px;
+	position: relative;
+}
+
+.share .center .left {
+	width: 210px;
+	min-height: 407px;
+	background: #f9f9f9;
+	float: left;
+}
+
+.share .center .left .sel {
+	background: white;
+}
+
+.share .center .left .title {
+	width: 210px;
+	height: 69px;
+	text-align: left;
+	color: #999999;
+	font-size: 15px;
+	line-height: 90px;
+	border-bottom: 1px dotted #a2a2a2;
+}
+
+.share .center .left .item {
+	width: 100%;
+	height: 45px;
+	line-height: 45px;
+	border-bottom: 1px dotted #a2a2a2;
+}
+
+.share .center .left .item img {
+	width: 17px;
+	margin-left: 10px;
+	float: left;
+	margin-top: 15px;
+}
+
+.share .center .left .item span {
+	margin-left: 8px;
+	color: #090808;
+	font-size: 15px;
+}
+
+.share .center .left .touch {
+	width: 210px;
+	height: 110px;
+	text-align: left;
+	font-size: 15px;
+	border-bottom: 1px dotted #a2a2a2;
+}
+
+.share .center .left .touch .touch_t {
+	margin-top: 30px;
+	color: #999999;
+}
+
+.share .center .left .touch .touch_i {
+	margin-top: 10px;
+	color: #4f4d4e;
+}
+
+.share .center .right {
+	width: 946px;
+	min-height: 407px;
+	float: right;
+	background: white;
+	z-index: 99;
+	padding-bottom: 50px;
+}
+
+.share .right_bg {
+	width: 50%;
+	height: 100%;
+	right: 0;
+	top: 0;
+	background: white;
+	position: absolute;
+	z-index: -1;
+}
+
+/*
+分页-页码
+*/
+.page {
+	width: 100%;
+	height: 30px;
+	margin-top: 40px;
+	line-height: 30px;
+	text-align: center;
+}
+
+.page .page_left {
+	width: 18px;
+	height: 18px;
+	background: url(../img/page_left.png) no-repeat;
+	display: inline-block;
+	vertical-align: middle;
+	margin-top: -6px;
+}
+
+.page .page_right {
+	width: 18px;
+	height: 18px;
+	background: url(../img/page_right.png) no-repeat;
+	display: inline-block;
+	vertical-align: middle;
+	margin-top: -6px;
+}
+
+.page .number {
+	font-size: 15px;
+	color: #828080;
+	margin: 6px 5px;
+}
+
+.page .sel {
+	color: #2b64b3;
+}
